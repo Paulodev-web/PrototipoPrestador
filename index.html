@@ -16,6 +16,12 @@
   /* Em standalone o iOS reserva uma faixa para o home indicator e a pinta com o
      fundo da PÁGINA (o app não desenha ali). Branco faz essa faixa desaparecer
      sob a barra inferior, que também é branca. */
+  /* Quanto reservar embaixo. No iOS em standalone o viewport JÁ vem recortado
+     (797 de 844 px num iPhone Pro), mas env() continua reportando ~34px: somar
+     os dois duplica a folga e deixa a barra boiando. Ali a variável vai a zero;
+     no Android/navegador, onde o viewport é inteiro, env() é quem resolve. */
+  :root{--sh-safe-bottom:env(safe-area-inset-bottom,0px)}
+  html.ios-standalone{--sh-safe-bottom:0px}
   html,body{height:100%;margin:0;background:#ffffff;overscroll-behavior:none}
   body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   /* Viewport do app: tela cheia no celular, coluna centrada no desktop. */
@@ -29,6 +35,9 @@
   }
 </style>
 <script>
+  // navigator.standalone é true só no iOS aberto pela tela de início.
+  if (navigator.standalone === true) document.documentElement.classList.add('ios-standalone');
+
   // O dc-runtime resolve React/ReactDOM por este mapa em vez de ir ao unpkg.
   window.__resources = {
     "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "./assets/vendor/react.production.min.js",
@@ -248,7 +257,7 @@ input,button,textarea{font-family:'Sora',system-ui,sans-serif}
     <div style="font-size:20px;font-weight:800;color:#212121;margin-top:16px">Cadastro em análise</div>
     <div style="font-size:12px;color:#4a544d;line-height:1.7;margin-top:8px;padding:0 10px">Nossa equipe confere seus documentos manualmente. Você recebe uma notificação assim que for aprovado — normalmente em até <b>2 dias úteis</b>.</div>
   </div>
-  <div style="padding:8px 20px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px">
+  <div style="padding:8px 20px calc(10px + var(--sh-safe-bottom));display:flex;flex-direction:column;gap:12px">
     <div style="background:#ffffff;border:1px solid #e7ede8;border-radius:16px;padding:16px">
       <sc-for list="{{ anSteps }}" as="t" hint-placeholder-count="3">
         <div style="display:flex;gap:11px">
@@ -611,7 +620,7 @@ input,button,textarea{font-family:'Sora',system-ui,sans-serif}
       </div>
     </sc-for>
   </div>
-  <div style="padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#ffffff;border-top:1px solid #e7ede8;display:flex;gap:8px">
+  <div style="padding:10px 14px calc(10px + var(--sh-safe-bottom));background:#ffffff;border-top:1px solid #e7ede8;display:flex;gap:8px">
     <input value="{{ draft }}" sc-camel-on-change="{{ onDraft }}" placeholder="Escreva sua mensagem" style="flex:1;padding:13px 15px;border:1.5px solid #dbe4dd;border-radius:999px;font-size:12.5px;background:#f6f8f6;outline:none;min-width:0" style-focus="border-color:#16a34a">
     <button sc-camel-on-click="{{ onSendMsg }}" style="width:46px;height:46px;flex:none;border-radius:50%;border:0;background:#116b2f;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:#0c4b25">
       <svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none"><path d="M4 12h14M13 6l6 6-6 6" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -681,7 +690,7 @@ input,button,textarea{font-family:'Sora',system-ui,sans-serif}
 <!-- +screens -->
 
 <sc-if value="{{ tabsOn }}" hint-placeholder-val="{{ false }}">
-<div style="display:flex;background:#ffffff;border-top:1px solid #e7ede8;padding:8px 6px calc(8px + env(safe-area-inset-bottom));position:relative;z-index:5">
+<div style="display:flex;background:#ffffff;border-top:1px solid #e7ede8;padding:8px 6px calc(8px + var(--sh-safe-bottom));position:relative;z-index:5">
   <button sc-camel-on-click="{{ navSol }}" style="flex:1;background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0">
     <svg width="22" height="22" sc-camel-view-box="0 0 24 24" fill="none"><rect x="4.5" y="5" width="15" height="15" rx="2.5" stroke="{{ tcSol }}" stroke-width="1.8"></rect><path d="M8.5 10h7M8.5 14h5" stroke="{{ tcSol }}" stroke-width="1.8" stroke-linecap="round"></path></svg>
     <span style="font-size:10px;font-weight:600;color:{{ tcSol }}">Pedidos</span>

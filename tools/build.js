@@ -76,14 +76,14 @@ tpl = tpl.slice(0, shellStart) + '<div class="sh-app">' + tpl.slice(importOpenEn
 // 3b. As barras inferiores (tab bar, campo do chat, botões de CTA) traziam folga
 //     fixa embaixo para escapar do home indicator DESENHADO na moldura. Sem a
 //     moldura isso vira um vão morto, com os ícones flutuando acima da borda.
-//     env(safe-area-inset-bottom) dá zero num aparelho sem barra de gestos e a
+//     var(--sh-safe-bottom) dá zero num aparelho sem barra de gestos e a
 //     medida exata num que tenha.
 const BARRAS = {
-  'padding:8px 6px 26px':   'padding:8px 6px calc(8px + env(safe-area-inset-bottom))',
-  'padding:10px 14px 28px': 'padding:10px 14px calc(10px + env(safe-area-inset-bottom))',
-  'padding:8px 20px 28px':  'padding:8px 20px calc(10px + env(safe-area-inset-bottom))',
-  'padding:12px 16px 30px': 'padding:12px 16px calc(12px + env(safe-area-inset-bottom))',
-  'padding:12px 20px 30px': 'padding:12px 20px calc(12px + env(safe-area-inset-bottom))',
+  'padding:8px 6px 26px':   'padding:8px 6px calc(8px + var(--sh-safe-bottom))',
+  'padding:10px 14px 28px': 'padding:10px 14px calc(10px + var(--sh-safe-bottom))',
+  'padding:8px 20px 28px':  'padding:8px 20px calc(10px + var(--sh-safe-bottom))',
+  'padding:12px 16px 30px': 'padding:12px 16px calc(12px + var(--sh-safe-bottom))',
+  'padding:12px 20px 30px': 'padding:12px 20px calc(12px + var(--sh-safe-bottom))',
 };
 let barras = 0;
 for (const [de, para] of Object.entries(BARRAS)) {
@@ -108,6 +108,12 @@ const head = `<meta name="viewport" content="width=device-width, initial-scale=1
   /* Em standalone o iOS reserva uma faixa para o home indicator e a pinta com o
      fundo da PÁGINA (o app não desenha ali). Branco faz essa faixa desaparecer
      sob a barra inferior, que também é branca. */
+  /* Quanto reservar embaixo. No iOS em standalone o viewport JÁ vem recortado
+     (797 de 844 px num iPhone Pro), mas env() continua reportando ~34px: somar
+     os dois duplica a folga e deixa a barra boiando. Ali a variável vai a zero;
+     no Android/navegador, onde o viewport é inteiro, env() é quem resolve. */
+  :root{--sh-safe-bottom:env(safe-area-inset-bottom,0px)}
+  html.ios-standalone{--sh-safe-bottom:0px}
   html,body{height:100%;margin:0;background:#ffffff;overscroll-behavior:none}
   body{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
   /* Viewport do app: tela cheia no celular, coluna centrada no desktop. */
@@ -121,6 +127,9 @@ const head = `<meta name="viewport" content="width=device-width, initial-scale=1
   }
 </style>
 <script>
+  // navigator.standalone é true só no iOS aberto pela tela de início.
+  if (navigator.standalone === true) document.documentElement.classList.add('ios-standalone');
+
   // O dc-runtime resolve React/ReactDOM por este mapa em vez de ir ao unpkg.
   window.__resources = {
     "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "./assets/vendor/react.production.min.js",
