@@ -1,6 +1,6 @@
 // Service worker do ServeHub Prestador.
 // Bump CACHE a cada deploy para invalidar a versão anterior.
-const CACHE = 'prototipoprestador-v1';
+const CACHE = 'prototipoprestador-v2';
 const PRECACHE = [
   "./",
   "./index.html",
