@@ -11,6 +11,12 @@ Gerado a partir do protótipo do Claude Design `Prototipos/ServeHub App Prestado
 - a moldura de iPhone (bezel, dynamic island, status bar "9:41", home indicator);
 - o Babel standalone (3,1 MB), que só era necessário para compilar a moldura em runtime.
 
+As barras inferiores (tab bar, campo do chat, botões de CTA) vinham com folga fixa
+embaixo para escapar do home indicator **desenhado** na moldura. Sem a moldura isso
+virava um vão morto, com os ícones flutuando acima da borda da tela; a folga passou a
+ser `env(safe-area-inset-bottom)` — zero num aparelho sem barra de gestos, e a medida
+exata num que tenha.
+
 React, ReactDOM, o runtime do Claude Design e as fontes Sora são servidos localmente —
 **nenhuma requisição a CDN**, o app funciona offline depois da primeira visita.
 
@@ -18,6 +24,7 @@ React, ReactDOM, o runtime do Claude Design e as fontes Sora são servidos local
 
 ```
 index.html                 app inteiro (template + lógica)
+tools/build.js             regera o index.html a partir do protótipo
 assets/dc-runtime.js       runtime do Claude Design
 assets/vendor/             React 18.3.1 + ReactDOM (UMD)
 assets/fonts/              Sora (woff2, latin + latin-ext)
@@ -48,9 +55,14 @@ Cada push na `main` redeploya automaticamente.
 
 ## Atualizar o protótipo
 
-Ao regerar o protótipo no Claude Design, rode novamente o script de build sobre o novo
-`.html` e **incremente a constante `CACHE` em `sw.js`** — sem isso os visitantes que já
-instalaram continuam vendo a versão antiga.
+Ao regerar o protótipo no Claude Design, rode o build sobre o novo `.html`:
+
+```bash
+node tools/build.js "/caminho/para/ServeHub App Prestador.html"
+```
+
+O `.html` de origem não é modificado. Depois **incremente a constante `CACHE` em
+`sw.js`** — sem isso os visitantes que já instalaram continuam vendo a versão antiga.
 
 ---
 
